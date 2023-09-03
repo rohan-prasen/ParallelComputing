@@ -21,18 +21,22 @@ public class Server {
             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
 
-            // Receive the list of data packets from the client
-            List<DataPacket> dataPackets = (List<DataPacket>) in.readObject();
+            // Receive half of the list of data packets from the client
+            List<DataPacket> clientData = (List<DataPacket>) in.readObject();
 
-            // Process the list of data packets in parallel
+            // Process the other half of data packets on the server in parallel
             ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             List<Future<Integer>> results = new ArrayList<>();
 
-            // Indicate that parallel computing is being used
-            System.out.println("Implementing Parallel Computing Approach...");
+            // Indicate that parallel computing is being used on the server
+            System.out.println("Server: Implementing Parallel Computing Approach...");
 
-            for (DataPacket packet : dataPackets) {
+            for (DataPacket packet : clientData) {
                 Future<Integer> result = executor.submit(() -> {
+                    // Get the name of the current thread on the server and display it
+                    String threadName = Thread.currentThread().getName();
+                    System.out.println("Server processing on thread: " + threadName);
+
                     // Calculate the factorial using the DataPacket's method
                     return packet.calculateFactorial();
                 });
@@ -51,7 +55,7 @@ public class Server {
 
             out.writeObject(resultList);
             out.flush();
-            System.out.println("Task completed. Results sent to client.");
+            System.out.println("Task completed on the server. Results sent to client.");
 
             // Close the connections
             in.close();

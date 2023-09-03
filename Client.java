@@ -18,16 +18,33 @@ public class Client {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
-            // Generate a list of DataPacket objects with task descriptions and data
-            List<DataPacket> dataPackets = generateDataPackets(5); // You can change the number of calculations
+            System.out.println("Enter the number of processes: ");
+            int numProcesses = s.nextInt();
 
-            // Send the list of data packets to the server for parallel processing
-            out.writeObject(dataPackets);
+            // Generate a list of DataPacket objects with task descriptions and data
+            List<DataPacket> dataPackets = generateDataPackets(numProcesses);
+
+            // Send half of the data packets to the server for parallel processing
+            int half = dataPackets.size() / 2;
+            List<DataPacket> clientData = dataPackets.subList(0, half);
+            out.writeObject(clientData);
             out.flush();
 
+            // Perform the other half of calculations on the client side
+            List<Integer> clientResults = new ArrayList<>();
+            for (DataPacket packet : dataPackets.subList(half, dataPackets.size())) {
+                String threadName = Thread.currentThread().getName();
+                System.out.println("Client processing on thread: " + threadName);
+                int result = packet.calculateFactorial();
+                clientResults.add(result);
+            }
+
             // Receive the results from the server
-            List<Integer> resultList = (List<Integer>) in.readObject();
-            System.out.println("Received results from server: " + resultList);
+            List<Integer> serverResults = (List<Integer>) in.readObject();
+            System.out.println("Received results from server: " + serverResults);
+
+            // Combine results from the client and server
+            clientResults.addAll(serverResults);
 
             // Close the connections
             in.close();
