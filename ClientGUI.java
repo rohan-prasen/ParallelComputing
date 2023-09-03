@@ -84,6 +84,7 @@ public class ClientGUI {
                     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
                     List<Future<Integer>> clientResults = new ArrayList<>();
 
+                    outputArea.append("connected to server: /" + ipAddress + "\n");
                     outputArea.append("Client: Implementing Parallel Computing Approach...\n");
 
                     for (DataPacket packet : dataPackets.subList(half, dataPackets.size())) {
