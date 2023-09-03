@@ -20,7 +20,7 @@ public class ClientGUI {
     public ClientGUI() {
         frame = new JFrame("Client GUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 300);
+        frame.setSize(900, 600);
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(4, 2));

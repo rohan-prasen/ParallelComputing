@@ -17,7 +17,7 @@ public class ServerGUI {
     public ServerGUI() {
         frame = new JFrame("Server GUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 300);
+        frame.setSize(900, 600);
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(2, 1));
