@@ -28,6 +28,9 @@ public class Server {
             ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             List<Future<Integer>> results = new ArrayList<>();
 
+            // Indicate that parallel computing is being used
+            System.out.println("Implementing Parallel Computing Approach...");
+
             for (DataPacket packet : dataPackets) {
                 Future<Integer> result = executor.submit(() -> {
                     // Calculate the factorial using the DataPacket's method
