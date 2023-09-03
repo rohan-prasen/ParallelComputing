@@ -27,9 +27,10 @@ public class Client {
 
             // Send half of the data packets to the server for parallel processing
             int half = dataPackets.size() / 2;
-            List<DataPacket> clientData = dataPackets.subList(0, half);
+            List<DataPacket> clientData = new ArrayList<>(dataPackets.subList(0, half));
             out.writeObject(clientData);
             out.flush();
+
 
             // Perform the other half of calculations on the client side using parallel threads
             ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
