@@ -13,13 +13,14 @@ public class ServerGUI {
     private JFrame frame;
     private JButton startButton;
     private JTextArea outputArea;
+    private JPanel panel; // Declare the panel as an instance variable
 
     public ServerGUI() {
         frame = new JFrame("Server GUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(900, 600);
 
-        JPanel panel = new JPanel();
+        panel = new JPanel(); // Initialize the panel as an instance variable
         panel.setLayout(new GridLayout(2, 1));
 
         startButton = new JButton("Start Server");
@@ -48,7 +49,9 @@ public class ServerGUI {
             public void run() {
                 try {
                     // Server socket listening on port 12345
+                    String serverIPAddress = InetAddress.getLocalHost().getHostAddress();
                     ServerSocket serverSocket = new ServerSocket(12345);
+                    outputArea.append("Server's IP Address: /" + serverIPAddress + "\n");
                     outputArea.append("Server is waiting for a connection...\n");
 
                     while (true) {
@@ -93,12 +96,24 @@ public class ServerGUI {
 
                         out.writeObject(resultList);
                         out.flush();
-                        outputArea.append("Task completed on the server. Results sent to client.\n");
+                        outputArea.append("Task completed.\n");
 
                         // Close the connections
                         in.close();
                         out.close();
                         clientSocket.close();
+
+                        // Add the "Reset" button after completing the task
+                        JButton resetButton = new JButton("Reset");
+                        resetButton.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                // Reset functionality here
+                                outputArea.setText("");  // Clear the output area
+                            }
+                        });
+                        panel.add(resetButton);
+                        frame.validate();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

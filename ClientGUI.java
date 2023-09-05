@@ -15,6 +15,7 @@ public class ClientGUI {
     private JTextField ipAddressField;
     private JTextField numProcessesField;
     private JButton startButton;
+    private JButton resetButton; // Added reset button
     private JTextArea outputArea;
 
     public ClientGUI() {
@@ -23,13 +24,14 @@ public class ClientGUI {
         frame.setSize(900, 600);
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2));
+        panel.setLayout(new GridLayout(5, 2)); // Increased the row count to accommodate the reset button
 
         JLabel ipLabel = new JLabel("Server IP Address:");
         ipAddressField = new JTextField("localhost");
         JLabel numProcessesLabel = new JLabel("Number of Processes:");
-        numProcessesField = new JTextField("5");
+        numProcessesField = new JTextField("25");
         startButton = new JButton("Start Client");
+        resetButton = new JButton("Reset"); // Initialize the reset button
         outputArea = new JTextArea();
         outputArea.setEditable(false);
 
@@ -40,11 +42,20 @@ public class ClientGUI {
             }
         });
 
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Reset functionality here
+                outputArea.setText(""); // Clear the output area
+            }
+        });
+
         panel.add(ipLabel);
         panel.add(ipAddressField);
         panel.add(numProcessesLabel);
         panel.add(numProcessesField);
         panel.add(startButton);
+        panel.add(resetButton); // Add the reset button
 
         JScrollPane scrollPane = new JScrollPane(outputArea);
 
@@ -85,7 +96,7 @@ public class ClientGUI {
                     List<Future<Integer>> clientResults = new ArrayList<>();
 
                     outputArea.append("connected to server: /" + ipAddress + "\n");
-                    outputArea.append("Client: Implementing Parallel Computing Approach...\n");
+                    outputArea.append("Implementing Parallel Computing Approach...\n");
 
                     for (DataPacket packet : dataPackets.subList(half, dataPackets.size())) {
                         Future<Integer> result = executor.submit(() -> {
@@ -103,7 +114,7 @@ public class ClientGUI {
 
                     // Receive the results from the server
                     List<Integer> serverResults = (List<Integer>) in.readObject();
-                    outputArea.append("Received results from server: " + serverResults + "\n");
+                    //outputArea.append("Received results from server: " + serverResults + "\n");
 
                     // Combine results from the client and server
                     List<Integer> allResults = new ArrayList<>();
@@ -113,7 +124,7 @@ public class ClientGUI {
                     allResults.addAll(serverResults);
 
                     // Display the combined results
-                    outputArea.append("Combined results: " + allResults + "\n");
+                    outputArea.append("Results: " + allResults + "\n");
 
                     // Close the connections
                     in.close();
