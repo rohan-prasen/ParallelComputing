@@ -14,8 +14,13 @@ public class ServerGUI {
     private JButton startButton;
     private JTextArea outputArea;
     private JPanel panel; // Declare the panel as an instance variable
+    private JButton resetButton; // Declare the reset button as an instance variable
 
     public ServerGUI() {
+        initializeGUI();
+    }
+
+    private void initializeGUI() {
         frame = new JFrame("Server GUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(900, 600);
@@ -40,10 +45,24 @@ public class ServerGUI {
 
         frame.getContentPane().add(panel, BorderLayout.CENTER);
 
+        // Initialize the reset button, but don't add it to the panel yet
+        resetButton = new JButton("Reset");
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Clear the output area
+                outputArea.setText("");
+            }
+        });
+
         frame.setVisible(true);
     }
 
     private void startServer() {
+        // Add the reset button to the panel
+        panel.add(resetButton);
+        frame.validate();
+
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -102,18 +121,6 @@ public class ServerGUI {
                         in.close();
                         out.close();
                         clientSocket.close();
-
-                        // Add the "Reset" button after completing the task
-                        JButton resetButton = new JButton("Reset");
-                        resetButton.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                // Reset functionality here
-                                outputArea.setText("");  // Clear the output area
-                            }
-                        });
-                        panel.add(resetButton);
-                        frame.validate();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
