@@ -13,8 +13,10 @@ public class ServerGUI {
     private JFrame frame;
     private JButton startButton;
     private JTextArea outputArea;
-    private JPanel panel; // Declare the panel as an instance variable
-    private JButton resetButton; // Declare the reset button as an instance variable
+    private JPanel panel;
+    private JButton resetButton;
+    private JTextField numClientsField; // Smaller text field for specifying the number of clients
+    private int numClients = 0;
 
     public ServerGUI() {
         initializeGUI();
@@ -23,23 +25,39 @@ public class ServerGUI {
     private void initializeGUI() {
         frame = new JFrame("Server GUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(900, 600);
+        frame.setSize(1000, 750);
 
-        panel = new JPanel(); // Initialize the panel as an instance variable
-        panel.setLayout(new GridLayout(2, 1));
+        panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 1)); // Adjust layout to accommodate the input field
 
         startButton = new JButton("Start Server");
         outputArea = new JTextArea();
         outputArea.setEditable(false);
 
+        // Create a label for specifying the number of clients
+        JLabel numClientsLabel = new JLabel("Number of Clients:");
+
+        // Create a smaller text field for inputting the number of clients
+        numClientsField = new JTextField(2); // Adjust the size as needed
+
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startServer();
+                // Get the number of clients from the input field
+                String numClientsStr = numClientsField.getText();
+                try {
+                    numClients = Integer.parseInt(numClientsStr);
+                    startServer();
+                } catch (NumberFormatException ex) {
+                    outputArea.append("Invalid number of clients. Please enter a valid number.\n");
+                }
             }
         });
 
+        panel.add(numClientsLabel);
+        panel.add(numClientsField); // Add the smaller text field
         panel.add(startButton);
+
         JScrollPane scrollPane = new JScrollPane(outputArea);
         panel.add(scrollPane);
 
@@ -71,57 +89,34 @@ public class ServerGUI {
                     String serverIPAddress = InetAddress.getLocalHost().getHostAddress();
                     ServerSocket serverSocket = new ServerSocket(12345);
                     outputArea.append("Server's IP Address: /" + serverIPAddress + "\n");
-                    outputArea.append("Server is waiting for a connection...\n");
+                    outputArea.append("Waiting for " + numClients + " client connections...\n");
 
-                    while (true) {
+                    // Counter for tracking connected clients
+                    int connectedClients = 0;
+
+                    while (connectedClients < numClients) {
                         // Accept client connection
                         Socket clientSocket = serverSocket.accept();
                         outputArea.append("Connected to client: " + clientSocket.getInetAddress() + "\n");
+                        connectedClients++;
 
                         // Create input and output streams
                         ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                         ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
 
-                        // Receive half of the list of data packets from the client
-                        List<DataPacket> clientData = (List<DataPacket>) in.readObject();
+                        // Receive data from the client and process it as needed
 
-                        // Process the other half of data packets on the server in parallel
-                        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-                        List<Future<Integer>> results = new ArrayList<>();
-
-                        outputArea.append("Implementing Parallel Computing Approach...\n");
-
-                        for (DataPacket packet : clientData) {
-                            Future<Integer> result = executor.submit(() -> {
-                                // Get the name of the current thread on the server and display it
-                                String threadName = Thread.currentThread().getName();
-                                outputArea.append("Server processing on thread: " + threadName + "\n");
-
-                                // Calculate the factorial using the DataPacket's method
-                                return packet.calculateFactorial();
-                            });
-                            results.add(result);
-                        }
-
-                        // Wait for all calculations to complete
-                        executor.shutdown();
-                        executor.awaitTermination(30, TimeUnit.SECONDS); // Wait up to 30 seconds
-
-                        // Retrieve and send results to the client
-                        List<Integer> resultList = new ArrayList<>();
-                        for (Future<Integer> result : results) {
-                            resultList.add(result.get());
-                        }
-
-                        out.writeObject(resultList);
-                        out.flush();
-                        outputArea.append("Task completed.\n");
-
-                        // Close the connections
+                        // Close the connections for this client
                         in.close();
                         out.close();
                         clientSocket.close();
                     }
+
+                    outputArea.append("All clients connected and processed.\n");
+
+                    // Server has finished processing all clients, so it can close now
+
+                    serverSocket.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
